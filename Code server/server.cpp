@@ -13,8 +13,25 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <dirent.h>
+#include <errno.h>
+#include<vector>
 using namespace std;
+int getdir (string dir, vector<string> &files)
+{
+    DIR *dp;
+    struct dirent *dirp;
+    if((dp  = opendir(dir.c_str())) == NULL) {
+        cout << "Error(" << errno << ") opening " << dir << endl;
+        return errno;
+    }
 
+    while ((dirp = readdir(dp)) != NULL) {
+        files.push_back(string(dirp->d_name));
+    }
+    closedir(dp);
+    return 0;
+}
 //todo adres ip serwera
 int main(){    
     int socketDescriptor = socket(PF_INET, SOCK_STREAM, 0);
@@ -135,8 +152,43 @@ int main(){
                      
                         break;
                     }
-                    case 'w':{//wyświetl listę 
-                     
+                    case 'w':{//wyświetl listę arch
+                        string dir = string(".");
+						    vector<string> files = vector<string>();
+
+						    getdir(dir,files);
+                                int sizeNameFiles=0;
+						    for (unsigned int i = 0;i < files.size();i++) {
+						        cout << files[i] << endl;
+                                                        string fileName=files[i];
+                                                        sizeNameFiles+=fileName.size()+1;
+                                                        
+						    }
+						    
+						    cout<<"rozmiar tablicy"<<sizeNameFiles<<endl;
+                                                
+						    char tableToSend [sizeNameFiles];
+                                                    int iterator =0;
+                                                    for ( unsigned int i=0; i<files.size() ; i++ ) {
+                                                        
+                                                        string fileName=files[i];
+                                                        
+                                                        for (unsigned int j=0; j<fileName.size();j++){
+                                                            
+                                                            tableToSend[iterator]=fileName[j];
+                                                            iterator++;
+                                                        }
+                                                        
+                                                        tableToSend[iterator]='\n';
+                                                        iterator++;
+                                                        
+                                                        
+                                                    }
+                                                    
+                                                    cout<<tableToSend<<endl;
+						    
+						    
+
                         break;
                     }
 
