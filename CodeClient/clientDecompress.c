@@ -12,18 +12,21 @@
 
 const char IP_ADDR[14] = "127.0.0.1";
 const int IP_PORT = 12345;
-char buf[200];
+
 
 int main(int argc, char *argv[]) {
         struct sockaddr_in addr;
         addr.sin_family = PF_INET;
         addr.sin_port = htons(IP_PORT);
         addr.sin_addr.s_addr = inet_addr(IP_ADDR);
-        
+    
         // Connect with server
         int sd = socket(PF_INET, SOCK_STREAM, 0);
         int connect_status = connect(sd, (struct sockaddr*)&addr, sizeof(addr));
+       // char buf[200];
         
+            unsigned long lengthAfterDecompress=40000; 
+        char buf[lengthAfterDecompress];
         if(connect_status != -1) {
             // Send Student ID
           char wielka_tablica[1001];
@@ -52,7 +55,11 @@ int main(int argc, char *argv[]) {
             
             // Get server response & write to console
             
+            int r=read(sd,buf,sizeof(buf));
+
+            write(1,buf,r);
             
+           // printf("\n");
             
             // Close connect
             close(sd);

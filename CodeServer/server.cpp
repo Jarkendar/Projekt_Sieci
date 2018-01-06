@@ -164,7 +164,68 @@ int main(){
                         string testArchiveName= string(nameArchive);
                         string archiveName = testArchiveName.substr(0,105);
                         cout<<endl<<" Nazwa archiwum : "<<endl <<archiveName<<endl;
-                       // cout<<"Lista plikow do wyslania " <<endl<<nameArchive<<endl;
+                  
+                        
+                        fstream archive;
+                        
+                        archive.open(archiveName,ios::binary|ios::in);
+                        if(!archive.is_open()) return 0;
+                        
+                        //sprawdzenie dlugosci pliku
+                        
+                        archive.seekg(0,ios::end);
+                        unsigned int archiveLength = archive.tellg();
+                        archive.seekg(0,ios::beg);
+                        
+                        //tworzenie bufora do ktorego wczytamy plik
+                        
+                        char *buffer = new char[archiveLength];
+ 
+                         //odczytujemy archiwum bajt po bajcie
+                        
+                        for(unsigned int i = 0;i<archiveLength;i++)
+                            {
+                            archive.read((char*)&buffer[i],1);  
+                            }
+                            
+                            cout << "Zawartosc odczytanego buffora z archiwum "<<endl;
+                      for(unsigned int i = 0;i<archiveLength;i++)
+                            {
+                            cout<<buffer[i];  
+                            }
+                        
+                           //tworzenie bufora do ktorego zapiszemy dane rozpakowane przez biblioteke zlib
+                            //wielkosc bufora dla bezpieczenistwa powinna byc 
+                        //odpowiednio duza aby rozpakowane dany zmiescily sie
+                        //mozna bylo oczywiscie zapisac rozmiar danych przed spakowaniem do pliku 
+                    //maksymalnie dane mogą mieć wielkość 800000 bajtow
+                    //jezeli mamy wiekszy plik to odpowiedni musimy zwiekszyc ta wartosc
+                    
+                    char * destinationBuffer = new char[800000];//trzeba przerobić aby miał gdzieś zapisany rozmiar 
+ 
+                    unsigned long lengthAfterDecompress; 
+                
+                //rozpakowyjemy
+                    
+                uncompress((Bytef*)destinationBuffer,(uLong*)&lengthAfterDecompress,(Bytef*)buffer,archiveLength);
+                        
+                        char * tableToClient = new char [lengthAfterDecompress];
+                        
+                        cout<<endl<<"Przed wypelnieniem tablicy do klienta "<<endl;
+                        
+                        for ( unsigned long j=0; j<lengthAfterDecompress ; j++ ) {
+                            
+                            tableToClient[j]=destinationBuffer[j];
+                            cout<<tableToClient[j];
+                        }
+                        
+                        write(client,&tableToClient,sizeof(tableToClient));
+                        
+                        cout<<"Wyslalem do klienta"<<endl;
+                        
+                        delete(tableToClient);
+                        delete(buffer);
+                        delete(destinationBuffer);
                         break;
                     }
                     case 'w':{//wyświetl listę arch
