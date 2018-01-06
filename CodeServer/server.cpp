@@ -149,7 +149,22 @@ int main(){
 //KONIEC KOMPRESJI
                     }
                     case 'd':{//dekompresja
-                     
+                            //zalozylem se klient bedzie przesylal nazwa_archiwum.zlib ktory chce zeby mu zdekompresowac (105 znakow )
+                             cout<<" Id :  " << client<< " Dekompresja... "<<endl;
+                        char nameArchive[105];//
+                        for (int i = 0; i < 105; i++)
+                        {
+                        	char buf[1];
+                        	read(client, &buf, 1);
+                        	
+                        	nameArchive[i] = buf[0];
+                                //cout<<nameArchive[i];
+                        }
+                    
+                        string testArchiveName= string(nameArchive);
+                        string archiveName = testArchiveName.substr(0,105);
+                        cout<<endl<<" Nazwa archiwum : "<<endl <<archiveName<<endl;
+                       // cout<<"Lista plikow do wyslania " <<endl<<nameArchive<<endl;
                         break;
                     }
                     case 'w':{//wyświetl listę arch
