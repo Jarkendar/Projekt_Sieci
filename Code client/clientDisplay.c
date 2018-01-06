@@ -10,7 +10,7 @@
 #define ANSI_COLOR_RESET    "\x1b[0m"
 #define ANSI_COLOR_GREEN    "\x1b[32m"
 
-const char IP_ADDR[14] = "192.168.0.12";
+const char IP_ADDR[14] = "127.0.0.1";
 const int IP_PORT = 12345;
 char buf[200];
 
@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
         // Connect with server
         int sd = socket(PF_INET, SOCK_STREAM, 0);
         int connect_status = connect(sd, (struct sockaddr*)&addr, sizeof(addr));
-        
+        char buf[200];
         if(connect_status != -1) {
             // Send Student ID
             char wielka_tablica[1001];
@@ -42,7 +42,11 @@ int main(int argc, char *argv[]) {
             write(sd, &wielka_tablica, sizeof(char)*1001);
             
             // Get server response & write to console
+            int r=read(sd,buf,sizeof(buf));
+
+            write(1,buf,r);
             
+            printf("\n");
             // Close connect
             close(sd);
             return 0;

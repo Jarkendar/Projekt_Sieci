@@ -141,7 +141,7 @@ int main(){
 					        fileToCompress.write((char*)&compressFileBuffer[i],1);  
 					    }
  						fileToCompress.close();
- 						cout<<client<<" : "<<"skończyłem kompresję";
+ 						cout<<client<<" : "<<"skończyłem kompresję"<<endl;
                                                 
                         delete(compressFileBuffer);
                         delete(bufferToFile);
@@ -157,15 +157,15 @@ int main(){
 						    vector<string> files = vector<string>();
 
 						    getdir(dir,files);
-                                int sizeNameFiles=0;
+                                                   int sizeNameFiles=0;
 						    for (unsigned int i = 0;i < files.size();i++) {
-						        cout << files[i] << endl;
+						      //  cout << files[i] << endl;
                                                         string fileName=files[i];
                                                         sizeNameFiles+=fileName.size()+1;
                                                         
 						    }
 						    
-						    cout<<"rozmiar tablicy"<<sizeNameFiles<<endl;
+						   // cout<<"rozmiar tablicy"<<sizeNameFiles<<endl;
                                                 
 						    char tableToSend [sizeNameFiles];
                                                     int iterator =0;
@@ -185,7 +185,9 @@ int main(){
                                                         
                                                     }
                                                     
-                                                    cout<<tableToSend<<endl;
+                                                    cout<<"Lista plikow do wyslania " <<endl<<tableToSend<<endl;
+                                                    
+                                                    write(client,&tableToSend,sizeof(char)*sizeNameFiles);
 						    
 						    
 
@@ -217,7 +219,7 @@ int main(){
                 // write(client, buff, sizeof(buff));
                 // }
             }
-            printf("connect: %s\n", inet_ntoa((struct in_addr) newClient.sin_addr));
+            printf("Client adress ( connect ): %s\n", inet_ntoa((struct in_addr) newClient.sin_addr));
             exit(0);
         }
         close(client);
