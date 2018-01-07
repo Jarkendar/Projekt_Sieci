@@ -6,6 +6,8 @@ import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 
+import java.io.File;
+
 
 public class Controller {
     public Button buttonSend;
@@ -14,15 +16,21 @@ public class Controller {
     public Button buttonChooseFile;
     public ListView<String> listFiles;
 
+    private File file;
+
     public void clickChooseFile(ActionEvent actionEvent) {
         actionEvent.getSource();
         System.out.println(actionEvent);
-        //TODO get file path
+        file = Main.openFileChooser();
+        if (file != null) {
+            buttonChooseFile.setText(file.getAbsolutePath());
+        }
     }
 
     public void clickSend(ActionEvent actionEvent) {
         actionEvent.getSource();
         System.out.println(actionEvent);
+        buttonChooseFile.setText("Choose File");
         //TODO send data to server
     }
 
