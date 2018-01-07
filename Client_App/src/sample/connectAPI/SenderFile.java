@@ -1,4 +1,4 @@
-package sample.connector;
+package sample.connectAPI;
 
 import java.io.DataOutputStream;
 import java.io.File;
@@ -7,25 +7,24 @@ import java.net.ConnectException;
 import java.net.Socket;
 import java.nio.file.Files;
 
-public class Sender implements Runnable {
+public class SenderFile extends Connector {
 
     private File file;
-    private String ipAddress;
-    private int portNumber;
 
-    Sender(File file, String ipAddress, int portNumber) {
+    SenderFile(File file, String ipAddress, int portNumber) {
+        super(ipAddress, portNumber);
         this.file = file;
-        this.ipAddress = ipAddress;
-        this.portNumber = portNumber;
     }
 
     @Override
     public void run() {
 //TODO size inner buffer protect
-        try (Socket socket = new Socket(ipAddress, portNumber)) {
+        try (Socket socket = new Socket(getIpAddress(), getPortNumber())) {
 
             if (socket.isConnected()) {
                 System.out.println("Socket is connect");
+            } else {
+                return;
             }
 
             DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
@@ -45,10 +44,10 @@ public class Sender implements Runnable {
             dataOutputStream.close();
 
         } catch (ConnectException e){
-            System.out.println("Timeout Sender");
+            System.out.println("Timeout SenderFile");
             e.printStackTrace();
         } catch (IOException e) {
-            System.out.println("Error in Sender");
+            System.out.println("Error in SenderFile");
             e.printStackTrace();
         }
     }

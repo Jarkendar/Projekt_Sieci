@@ -5,7 +5,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
-import sample.connector.ConnectManager;
+import sample.connectAPI.ConnectManager;
 
 import java.io.File;
 
@@ -19,6 +19,7 @@ public class Controller {
 
     private File file;
     private ConnectManager connectManager = new ConnectManager();
+    private String[] listForListView;
 
     public void clickChooseFile(ActionEvent actionEvent) {
         actionEvent.getSource();
@@ -33,25 +34,25 @@ public class Controller {
         actionEvent.getSource();
         System.out.println(actionEvent);
         if (file != null) {
-            connectManager.send(file);
+            connectManager.sendFileToCompress(file);
             System.out.println("Zleciłem");
         }
         file = null;
         buttonChooseFile.setText("Choose File");
-        //TODO send data to server
     }
 
     public void clickList(ActionEvent actionEvent) {
         actionEvent.getSource();
         System.out.println(actionEvent);
-        //TODO send request for list
-        //TODO receive list and decode his
+
+        listForListView = connectManager.getListFileToDownload();
+
         int size = 100;
-        String array[] = new String[size];
+        listForListView = new String[size];
         for (int i = 1; i<=size; i++){
-            array[i-1] = "line "+i;
+            listForListView[i-1] = "line "+i;
         }
-        prepareDataToListView(array);
+        prepareDataToListView(listForListView);
     }
 
     public void clickDownload(ActionEvent actionEvent) {
@@ -63,7 +64,7 @@ public class Controller {
         }else {
             System.out.println("Not choose file from list.");
         }
-        //TODO send request with file name from list
+        //TODO sendFileToCompress request with file name from list
         //TODO download stream
         //TODO decode stream and save file
     }
