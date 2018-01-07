@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
         int connect_status = connect(sd, (struct sockaddr*)&addr, sizeof(addr));
        // char buf[200];
         
-            unsigned long lengthAfterDecompress=40000; 
+            unsigned long lengthAfterDecompress=4000; 
         char buf[lengthAfterDecompress];
         if(connect_status != -1) {
             // Send Student ID
