@@ -3,6 +3,7 @@ package sample.connector;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.Socket;
 import java.nio.file.Files;
 
@@ -28,7 +29,7 @@ public class Sender implements Runnable {
             }
 
             DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
-            byte[] bytesFile = prepareData();
+            byte[] bytesFile = prepareArrayBytesFromFile();
 
             if (bytesFile == null) {
                 System.out.println("I cant get bytes from files");
@@ -43,10 +44,23 @@ public class Sender implements Runnable {
             dataOutputStream.flush();
             dataOutputStream.close();
 
+        } catch (ConnectException e){
+            System.out.println("Timeout Sender");
+            e.printStackTrace();
         } catch (IOException e) {
-            System.out.println("Error in sendFileToServer");
+            System.out.println("Error in Sender");
             e.printStackTrace();
         }
+    }
+
+    private byte[] prepareArrayBytesFromFile() {
+        try {
+            return Files.readAllBytes(file.toPath());
+        } catch (IOException e) {
+            System.out.println("Prepare data Error");
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private byte[] prepareHeader(int size) {
@@ -69,15 +83,5 @@ public class Sender implements Runnable {
         string = new String(header);
         System.out.println("header after " + string);
         return header;
-    }
-
-    private byte[] prepareData() {
-        try {
-            return Files.readAllBytes(file.toPath());
-        } catch (IOException e) {
-            System.out.println("Prepare data Error");
-            e.printStackTrace();
-        }
-        return null;
     }
 }
