@@ -110,7 +110,7 @@ int main()
     unsigned long dlugosc_po_zpakowaniu; 
  
     //kompresujemy z najlepsza metoda
-    compress2((Bytef *)bufor_docelowy,&dlugosc_po_zpakowaniu,
+    cout<<"status kompresji "<<compress2((Bytef *)bufor_docelowy,&dlugosc_po_zpakowaniu,
     (const  Bytef*)bufor,dlugosc_pliku,Z_BEST_COMPRESSION);
     
     //tworzenie pliku w ktorym zapiszemy zpakowane dane
@@ -121,8 +121,9 @@ int main()
     for(unsigned int i = 0; i<dlugosc_po_zpakowaniu;i++)
     {
         plik_po_zpakowaniu.write((char*)&bufor_docelowy[i],1);  
+cout<<bufor_docelowy[i]<<",";
     }
- 
+ cout<<endl<<dlugosc_po_zpakowaniu<<endl;
     //zamykamy strumienie plikow
     plik.close();
     plik_po_zpakowaniu.close();

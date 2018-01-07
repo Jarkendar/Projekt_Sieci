@@ -130,7 +130,7 @@ int main(){
                                        
                                         
 					    //kompresujemy z najlepsza metoda
-					    compress2((Bytef *)compressFileBuffer,&lenghtAfterCompress,
+					    cout<<"Status kompresji :"<<compress2((Bytef *)compressFileBuffer,&lenghtAfterCompress,
 					    (const  Bytef*)bufferToFile,fileSize,Z_DEFAULT_COMPRESSION);
                                           cout<<"dlugosc po kompresji "<<lenghtAfterCompress<<endl;
                                           
@@ -169,8 +169,7 @@ int main(){
                         string testArchiveName= string(nameArchive);
                         string archiveName = testArchiveName.substr(0,105);
                         cout<<endl<<" Nazwa archiwum : "<<endl <<archiveName<<endl;
-                        
-                    
+                      
                         //sprawdzenie czy odczytana nazwa archiwum jest w katalogu
                           string dir = string(".");
 						    vector<string> files = vector<string>();
@@ -210,7 +209,7 @@ int main(){
                         for(unsigned int i = 0;i<archiveLength;i++)
                             {
                             archive.read((char*)&buffer[i],1); 
-                        cout<<buffer[i]<<",";
+                        cout<<buffer[i];
                             }
                             
                            
@@ -221,32 +220,40 @@ int main(){
                     //maksymalnie dane mogą mieć wielkość 800000 bajtow
                     //jezeli mamy wiekszy plik to odpowiedni musimy zwiekszyc ta wartosc
                     
-                    char * destinationBuffer = new char[800000];//trzeba przerobić aby miał gdzieś zapisany rozmiar 
-                    //char destinationBuffer[800000];
+                    char*destinationBuffer = new char[800000];//trzeba przerobić aby miał gdzieś zapisany rozmiar 
+                   // char destinationBuffer[800000];
                     unsigned long lengthAfterDecompress; 
                 
                 //rozpakowyjemy
                     
                cout<< "\n"<< "status uncompress "<<uncompress((Bytef*)destinationBuffer,(uLong*)&lengthAfterDecompress,(Bytef*)buffer,archiveLength);
                         
-                        char * tableToClient = new char [lengthAfterDecompress];
-                       // char tableToClient[lengthAfterDecompress];
+                       // char * tableToClient = new char [lengthAfterDecompress];
+                        char tableToClient[lengthAfterDecompress];
                             
                         cout<<endl<<"Dlugosc bufora po dekompresji  "<<lengthAfterDecompress<<endl;
                         
                         for ( unsigned long j=0; j<lengthAfterDecompress ; j++ ) {
                             
                             tableToClient[j]=destinationBuffer[j];
-                            cout<<tableToClient[j]<<",";
+                            //cout<<tableToClient[j];
+                        }
+                            
+                            cout<<"Zawartosc tablicy wyslanej do clienta : " <<endl;
+                          for ( unsigned long j=0; j<lengthAfterDecompress ; j++ ) {
+                            
+                            //tableToClient[j]=destinationBuffer[j];
+                            cout<<tableToClient[j];
                         }
                         
-                        write(client,&tableToClient,lengthAfterDecompress);
                         
-                        cout<<"Wyslalem do klienta"<<endl;
+                        write(client,&tableToClient,sizeof(char)*lengthAfterDecompress);
                         
-                        delete(tableToClient);
+                        cout<<endl<<"Wyslalem do klienta"<<endl;
+                        archive.close();
+                        //delete(tableToClient);
                         delete(buffer);
-                        delete(destinationBuffer);
+                      //  delete(destinationBuffer);
                         break;
                     }
                     case 'w':{//wyświetl listę arch
@@ -320,6 +327,7 @@ int main(){
             exit(0);
         }
         close(client);
+        
     }
 
 

@@ -8,7 +8,7 @@ int main()
 {
     fstream plik, plik_po_rozpakowaniu;
  
-    plik.open("zpakowany.zlib",ios::binary|ios::in);
+    plik.open("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz 00000000000254.zlib",ios::binary|ios::in);
     if(!plik.is_open())  //blad otwarcia pliku
         return 0;   //koniec programu
  
@@ -37,10 +37,10 @@ int main()
     unsigned long dlugosc_po_rozpakowaniu; 
  
     //rozpakowyjemy
-    uncompress((Bytef*)bufor_docelowy,(uLong*)&dlugosc_po_rozpakowaniu,(Bytef*)bufor,dlugosc_pliku);
+   cout<<"Status uncompressed " <<  uncompress((Bytef*)bufor_docelowy,(uLong*)&dlugosc_po_rozpakowaniu,(Bytef*)bufor,dlugosc_pliku);
      
     //tworzenie pliku w ktorym zapiszemy rozpakowane dane
-    plik_po_rozpakowaniu.open("rozpakowany.png",ios::binary|ios::out);//gdzieś trzeba trzymać zapisane dane rozszerzenia
+    plik_po_rozpakowaniu.open("rozpakowany.txt",ios::binary|ios::out);//gdzieś trzeba trzymać zapisane dane rozszerzenia
     //zapis danych do pliku
     for(unsigned int i = 0; i<dlugosc_po_rozpakowaniu;i++)
     {
