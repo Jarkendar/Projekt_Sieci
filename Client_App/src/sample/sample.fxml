@@ -17,10 +17,10 @@
    <children>
       <AnchorPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="500.0">
          <children>
-            <Button fx:id="buttonSend" layoutX="310.0" layoutY="32.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="151.0" text="Send to Server" />
-            <Button fx:id="buttonList" layoutX="310.0" layoutY="86.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="151.0" text="List File" />
-            <Button fx:id="buttonDownload" layoutX="310.0" layoutY="264.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="151.0" text="Download File" />
-            <Button fx:id="buttonChooseFile" layoutX="39.0" layoutY="32.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="228.0" text="Choose File" />
+            <Button fx:id="buttonSend" layoutX="310.0" layoutY="32.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="151.0" text="Send to Server" onAction="#clickSend"/>
+            <Button fx:id="buttonList" layoutX="310.0" layoutY="86.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="151.0" text="List File" onAction="#clickList"/>
+            <Button fx:id="buttonDownload" layoutX="310.0" layoutY="264.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="151.0" text="Download File" onAction="#clickDownload"/>
+            <Button fx:id="buttonChooseFile" layoutX="39.0" layoutY="32.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="228.0" text="Choose File" onAction="#clickChooseFile"/>
             <ListView fx:id="listFiles" layoutX="39.0" layoutY="86.0" prefHeight="382.0" prefWidth="228.0" />
          </children>
       </AnchorPane>
