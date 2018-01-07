@@ -5,6 +5,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
+import sample.connector.ConnectManager;
 
 import java.io.File;
 
@@ -17,6 +18,7 @@ public class Controller {
     public ListView<String> listFiles;
 
     private File file;
+    private ConnectManager connectManager = new ConnectManager();
 
     public void clickChooseFile(ActionEvent actionEvent) {
         actionEvent.getSource();
@@ -30,6 +32,11 @@ public class Controller {
     public void clickSend(ActionEvent actionEvent) {
         actionEvent.getSource();
         System.out.println(actionEvent);
+        if (file != null) {
+            connectManager.send(file);
+            System.out.println("Zleciłem");
+        }
+        file = null;
         buttonChooseFile.setText("Choose File");
         //TODO send data to server
     }
