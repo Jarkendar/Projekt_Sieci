@@ -3,7 +3,7 @@ package sample.connectAPI;
 import java.io.File;
 
 public class ConnectManager {
-    private static final String IP_ADDRESS = "192.0.0.1";
+    private static final String IP_ADDRESS = "127.0.0.1";
     private static final int PORT_NUMBER = 12345;
 
     public void sendFileToCompress(File file) {

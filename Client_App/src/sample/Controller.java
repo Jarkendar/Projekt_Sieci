@@ -47,11 +47,6 @@ public class Controller {
 
         listForListView = connectManager.getListFileToDownload();
 
-        int size = 100;
-        listForListView = new String[size];
-        for (int i = 1; i<=size; i++){
-            listForListView[i-1] = "line "+i;
-        }
         prepareDataToListView(listForListView);
     }
 
