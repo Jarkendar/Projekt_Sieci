@@ -83,8 +83,8 @@ int main(){
                         for (int i = 86; i <100; i++)//wczytanie rozmiaru pliku wejściowego
                         {
                         	int number = header[i] - 48;
-                                cout<<"header[i] " << header[i]<<endl;
-                                cout<<"rozmiar " << number<<endl;
+                               // cout<<"header[i] " << header[i]<<endl;
+                               // cout<<"rozmiar " << number<<endl;
                                 
                         	if (number != 0)
                         	{
@@ -99,6 +99,9 @@ int main(){
                         
                         cout<<"Doczytuje dane " <<endl;
                         char * bufferToFile = new char[fileSize];
+                        
+                        //char bufferToFile[fileSize];
+                        
                         for (int i=0 ; i<100 ; i++) {
                             bufferToFile[i]=header[i];
                             
@@ -122,14 +125,15 @@ int main(){
                      
                         
                         char* compressFileBuffer = new char[(int)(fileSize*1.1 + 12)];
-                                        
+                         // char compressFileBuffer[ int( fileSize*1.1 + 12) ];           
     					unsigned long lenghtAfterCompress; 
                                        
                                         
 					    //kompresujemy z najlepsza metoda
-					    compress2((Bytef *)compressFileBuffer,&lenghtAfterCompress,
-					    (const  Bytef*)bufferToFile,fileSize,Z_BEST_COMPRESSION);
-                                          cout<<"rxxx"<<endl;
+					    cout<<"Status kompresji :"<<compress2((Bytef *)compressFileBuffer,&lenghtAfterCompress,
+					    (const  Bytef*)bufferToFile,fileSize,Z_DEFAULT_COMPRESSION);
+                                          cout<<"dlugosc po kompresji "<<lenghtAfterCompress<<endl;
+                                          
 					    string fileName = string(header,100)+".zlib";
                                                 
     					//tworzenie pliku w ktorym zapiszemy zpakowane dane
@@ -138,7 +142,8 @@ int main(){
 					 
 					    for(unsigned int i = 0; i<lenghtAfterCompress;i++)
 					    {
-					        fileToCompress.write((char*)&compressFileBuffer[i],1);  
+					        fileToCompress.write((char*)&compressFileBuffer[i],1); 
+                                           // cout<<compressFileBuffer[i]<<",";
 					    }
  						fileToCompress.close();
  						cout<<client<<" : "<<"skończyłem kompresję"<<endl;
@@ -158,13 +163,29 @@ int main(){
                         	read(client, &buf, 1);
                         	
                         	nameArchive[i] = buf[0];
-                                //cout<<nameArchive[i];
+                              
                         }
                     
                         string testArchiveName= string(nameArchive);
                         string archiveName = testArchiveName.substr(0,105);
                         cout<<endl<<" Nazwa archiwum : "<<endl <<archiveName<<endl;
-                  
+                      
+                        //sprawdzenie czy odczytana nazwa archiwum jest w katalogu
+                          string dir = string(".");
+						    vector<string> files = vector<string>();
+
+						    getdir(dir,files);
+                                                
+						    for (unsigned int x = 0;x < files.size();x++) {
+						
+                                                        if (archiveName.compare(files[x])==0){
+                                                            cout<<"TEN PLIK ISTNIEJE W KATALOGU"<<endl;
+                                                        }
+						    }
+                        
+                    
+                        //otwieranie archiwum
+                      
                         
                         fstream archive;
                         
@@ -180,20 +201,18 @@ int main(){
                         //tworzenie bufora do ktorego wczytamy plik
                         
                         char *buffer = new char[archiveLength];
- 
+                        //        char buffer [archiveLength];
                          //odczytujemy archiwum bajt po bajcie
+                       
+                         cout << "\n"<<"Zawartosc odczytanego buffora z archiwum + dlugosc archiwum "<<archiveLength<<endl;
                         
                         for(unsigned int i = 0;i<archiveLength;i++)
                             {
-                            archive.read((char*)&buffer[i],1);  
+                            archive.read((char*)&buffer[i],1); 
+                        cout<<buffer[i];
                             }
                             
-                            cout << "Zawartosc odczytanego buffora z archiwum "<<endl;
-                      for(unsigned int i = 0;i<archiveLength;i++)
-                            {
-                            cout<<buffer[i];  
-                            }
-                        
+                           
                            //tworzenie bufora do ktorego zapiszemy dane rozpakowane przez biblioteke zlib
                             //wielkosc bufora dla bezpieczenistwa powinna byc 
                         //odpowiednio duza aby rozpakowane dany zmiescily sie
@@ -201,31 +220,40 @@ int main(){
                     //maksymalnie dane mogą mieć wielkość 800000 bajtow
                     //jezeli mamy wiekszy plik to odpowiedni musimy zwiekszyc ta wartosc
                     
-                    char * destinationBuffer = new char[800000];//trzeba przerobić aby miał gdzieś zapisany rozmiar 
- 
+                    char*destinationBuffer = new char[800000];//trzeba przerobić aby miał gdzieś zapisany rozmiar 
+                   // char destinationBuffer[800000];
                     unsigned long lengthAfterDecompress; 
                 
                 //rozpakowyjemy
                     
-                uncompress((Bytef*)destinationBuffer,(uLong*)&lengthAfterDecompress,(Bytef*)buffer,archiveLength);
+               cout<< "\n"<< "status uncompress "<<uncompress((Bytef*)destinationBuffer,(uLong*)&lengthAfterDecompress,(Bytef*)buffer,archiveLength);
                         
-                        char * tableToClient = new char [lengthAfterDecompress];
-                        
-                        cout<<endl<<"Przed wypelnieniem tablicy do klienta "<<endl;
+                       // char * tableToClient = new char [lengthAfterDecompress];
+                        char tableToClient[lengthAfterDecompress];
+                            
+                        cout<<endl<<"Dlugosc bufora po dekompresji  "<<lengthAfterDecompress<<endl;
                         
                         for ( unsigned long j=0; j<lengthAfterDecompress ; j++ ) {
                             
                             tableToClient[j]=destinationBuffer[j];
+                            //cout<<tableToClient[j];
+                        }
+                            
+                            cout<<"Zawartosc tablicy wyslanej do clienta : " <<endl;
+                          for ( unsigned long j=0; j<lengthAfterDecompress ; j++ ) {
+                            
+                            //tableToClient[j]=destinationBuffer[j];
                             cout<<tableToClient[j];
                         }
                         
-                        write(client,&tableToClient,sizeof(tableToClient));
                         
-                        cout<<"Wyslalem do klienta"<<endl;
+                        write(client,&tableToClient,sizeof(char)*lengthAfterDecompress);
                         
-                        delete(tableToClient);
+                        cout<<endl<<"Wyslalem do klienta"<<endl;
+                        archive.close();
+                        //delete(tableToClient);
                         delete(buffer);
-                        delete(destinationBuffer);
+                      //  delete(destinationBuffer);
                         break;
                     }
                     case 'w':{//wyświetl listę arch
@@ -299,6 +327,7 @@ int main(){
             exit(0);
         }
         close(client);
+        
     }
 
 
