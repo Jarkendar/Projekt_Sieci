@@ -29,7 +29,6 @@ public class FileServerLister extends Connector{
             byte[] bytes = {(byte)'w'};
             dataOutputStream.write(bytes);
             dataOutputStream.flush();
-            dataOutputStream.close();
             System.out.println("Send w request");
 
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
