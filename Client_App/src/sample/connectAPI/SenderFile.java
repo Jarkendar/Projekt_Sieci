@@ -71,13 +71,17 @@ public class SenderFile extends Connector {
 
     private byte[] prepareHeader(int size) {
         byte[] header = new byte[100];
-
+        for (int i = 0 ; i<header.length ; i++){
+            header[i] = (byte)' ';
+        }
         String string = new String(header);
         System.out.println("header before " + string);
         String[] path = file.getAbsolutePath().split("/");
         String name = path[path.length - 1];
         byte[] nameBytes = name.getBytes();
-        System.arraycopy(nameBytes, 0, header, 0, HEADER_SIZE);
+        for (int i = 0 ; i<nameBytes.length; i++){
+            header[i] = nameBytes[i];
+        }
         for (int i = 86; i < 100; i++) {
             int number = (int) (size / Math.pow(10, 100 - i - 1));
             if (number >= 10) {
