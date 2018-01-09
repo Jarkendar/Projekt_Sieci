@@ -1,12 +1,12 @@
 package sample.connectAPI;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
-public class ReceiverFile extends Connector{
+public class ReceiverFile extends Connector {
 
     private String wantFile;
 
@@ -17,37 +17,50 @@ public class ReceiverFile extends Connector{
 
     @Override
     public void run() {
-     try (Socket socket = new Socket(getIpAddress(),getPortNumber())){
-         byte[] header = wantFile.getBytes();
-         System.out.println("Header : "+new String(header));
-         System.out.println("Header size : "+header.length);
+        try (Socket socket = new Socket(getIpAddress(), getPortNumber())) {
+            byte[] header = wantFile.getBytes();
+            System.out.println("Header : " + new String(header));
+            System.out.println("Header size : " + header.length);
 
-         //SEND name to server
-         DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
-         dataOutputStream.write('d');
-         dataOutputStream.flush();
-         dataOutputStream.write(header);
-        //RECEIVE data from server
-         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            //SEND name to server
+            DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
+            dataOutputStream.write('d');
+            dataOutputStream.flush();
+            dataOutputStream.write(header);
+            //RECEIVE data from server
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
-         byte[] buffer = new byte[8192];
-         InputStream inputStream = socket.getInputStream();
+            byte[] buffer = new byte[8192];
+            InputStream inputStream = socket.getInputStream();
 
-         while (true){
-             int readBytes = inputStream.read(buffer);
-             if (readBytes < 0){
-                 break;
-             }
-             byteArrayOutputStream.write(buffer,0,readBytes);
-         }
-         byte[] dataArray = byteArrayOutputStream.toByteArray();
+            byte[] headerDownload = new byte[100];
+            inputStream.read(headerDownload, 0, HEADER_SIZE);
 
-         System.out.println(new String(dataArray, 0, 100));
+            while (true) {
+                int readBytes = inputStream.read(buffer);
+                if (readBytes < 0) {
+                    break;
+                }
+                byteArrayOutputStream.write(buffer, 0, readBytes);
+            }
+            byte[] dataArray = byteArrayOutputStream.toByteArray();
 
-         System.out.println(dataArray.length);
-         //TODO save stream to file
-     }catch (IOException e){
-         e.printStackTrace();
-     }
+            System.out.println(new String(headerDownload));
+
+            System.out.println("Download bytes : " + dataArray.length);
+            String fileName = pullNameFromHeader(new String(headerDownload));
+            File file = new File("download" + fileName);
+
+            Path path = Paths.get(file.getAbsolutePath());
+            System.out.println(path);
+            Files.write(path, dataArray);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String pullNameFromHeader(String header) {
+        String[] word = header.split(" ");
+        return word[0];
     }
 }
