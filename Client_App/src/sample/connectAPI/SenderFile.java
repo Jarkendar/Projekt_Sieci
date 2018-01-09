@@ -39,6 +39,7 @@ public class SenderFile extends Connector {
 
             byte[] header = prepareHeader(bytesFile.length + HEADER_SIZE);
 
+            //SEND sign, header and file to server
             dataOutputStream.write('c');
             dataOutputStream.flush();
             System.out.println("send c");

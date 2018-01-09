@@ -26,4 +26,8 @@ public class ConnectManager {
         return fileServerLister.getList();
     }
 
+    public void requestFileToDecompress(String name){
+        new Thread(new ReceiverFile(name, IP_ADDRESS, PORT_NUMBER)).start();
+    }
+
 }

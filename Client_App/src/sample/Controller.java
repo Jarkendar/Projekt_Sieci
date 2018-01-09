@@ -55,13 +55,10 @@ public class Controller {
         System.out.println(actionEvent);
         if (listFiles.getSelectionModel().getSelectedItem() != null){
             String lines = listFiles.getSelectionModel().getSelectedItem();
-            System.out.println(lines);
+            connectManager.requestFileToDecompress(lines);
         }else {
             System.out.println("Not choose file from list.");
         }
-        //TODO sendFileToCompress request with file name from list
-        //TODO download stream
-        //TODO decode stream and save file
     }
 
     public void prepareDataToListView(String lines[]){
