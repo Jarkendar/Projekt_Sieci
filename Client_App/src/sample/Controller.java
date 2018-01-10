@@ -16,6 +16,7 @@ public class Controller {
     public Button buttonDownload;
     public Button buttonChooseFile;
     public ListView<String> listFiles;
+    public Button buttonChooseDirectory;
 
     private File file;
     private ConnectManager connectManager = new ConnectManager();
@@ -35,7 +36,7 @@ public class Controller {
         System.out.println(actionEvent);
         if (file != null) {
             connectManager.sendFileToCompress(file);
-            System.out.println("Zleciłem");
+            System.out.println("order file");
         }
         file = null;
         buttonChooseFile.setText("Choose File");
@@ -70,4 +71,13 @@ public class Controller {
         listFiles.setItems(list);
     }
 
+    public void clickChooseDirectory(ActionEvent actionEvent) {
+        actionEvent.getSource();
+        System.out.println(actionEvent);
+        file = Main.openDirectoryChooser();
+        if (file != null){
+
+            System.out.println("order directory");
+        }
+    }
 }
