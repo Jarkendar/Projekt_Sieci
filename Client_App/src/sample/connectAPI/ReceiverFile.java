@@ -37,7 +37,7 @@ public class ReceiverFile extends Connector {
             inputStream.read(headerDownload, 0, HEADER_SIZE);
 
             while (true) {
-                int readBytes = inputStream.read(buffer);
+                int readBytes = inputStream.read(buffer,0,1);
                 if (readBytes < 0) {
                     break;
                 }
