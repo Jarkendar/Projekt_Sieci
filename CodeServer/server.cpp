@@ -151,18 +151,22 @@ int main(){
                         
                         string zipCommand ="zip ./archives/" + adressClient + ".zip" + "  ./tmpFilesForZip/"+adressClient+" -j  -FS -r ";
                         
-                        //cout<<"zipCommand : "<<zipCommand<<endl;
+                        
                         system (zipCommand.c_str());
                         
                         cout<<"Uworzylem zipa dla klienta o IP " << adressClient <<endl;
+                        
+                        string rmCommand = "rm " + fileName;
+                        system (rmCommand.c_str());
+                        
+                        //tutaj moznaby jeszcze usuwac folder tmpFilesForZip ?
                     
-    
                         break;
 //KONIEC KOMPRESJI
                     }
                     case 'd':{//dekompresja
-                            //zalozylem se klient bedzie przesylal nazwa_archiwum.zlib ktory chce zeby mu zdekompresowac (105 znakow )
-                             cout<<" Id :  " << client<< " Dekompresja... "<<endl;
+                            //zalozylem ze klient bedzie przesylal nazwa_archiwum.zip tylko to co ma na liscie i trzeba jakis znak konca przesylu nazwy dorzucic zeby wiedzial kiedy koniec narazie na sztywno 13
+                        cout<<" Id :  " << client<< " Dekompresja... "<<endl;
                         char nameArchive[13];//
                         for (int i = 0; i < 13; i++)
                         {
@@ -174,8 +178,8 @@ int main(){
                         }
                     
                         string testArchiveName= string(nameArchive);
-                        string archiveName = testArchiveName.substr(0,13);
-                        cout<<endl<<" Nazwa archiwum : "<<endl <<archiveName<<endl;
+                        string archiveName = "./archives/"+testArchiveName.substr(0,13);
+                        cout<<endl<<"Nazwa archiwum : "<<endl <<archiveName<<endl;
                       
                         //sprawdzenie czy odczytana nazwa archiwum jest w katalogu
                           string dir = string("./archives");
@@ -190,34 +194,53 @@ int main(){
                                                         }
 						    }
                         
-                    
-                        //otwieranie archiwum
-                                              
+                        string unzipCommand= "unzip -u " + archiveName + " -d tmpFilesUnzipped";
+                        system(unzipCommand.c_str());
+                        
                         fstream archive;
                         
-                        archive.open(archiveName.c_str(),ios::binary|ios::in);
+                        // 9 pierwszych po IP 127.0.0.1 potem trzeba dodac dynamicznie po czytaniu znakow zmienna na gorze
+                        string archiveNameOpen="./tmpFilesUnzipped/"+testArchiveName.substr(0,9);
+                        
+                        cout<<"nazwa pliku open: " <<archiveNameOpen <<endl;
+                        
+                        //otwieranie pliku
+                       archive.open(archiveNameOpen.c_str(),ios::binary|ios::in);
                         if(!archive.is_open()) return 0;
-                        
+                            
                         //sprawdzenie dlugosci pliku
-                        
                         archive.seekg(0,ios::end);
                         unsigned int archiveLength = archive.tellg();
                         archive.seekg(0,ios::beg);
                         
-                        //tworzenie bufora do ktorego wczytamy plik
+                        cout<<"Dlugosc pliku : " <<archiveLength <<endl;
                         
-                        char buffer[archiveLength];
-                        //        char buffer [archiveLength];
-                         //odczytujemy archiwum bajt po bajcie
-                       
-                         cout << "\n"<<"Zawartosc odczytanego buffora z archiwum + dlugosc archiwum "<<archiveLength<<endl;
-                        
-                        for(unsigned int i = 0;i<archiveLength;i++)
+                        //tworzenie bufora do klienta
+                         char buffer[archiveLength];
+                         
+                            for(unsigned int i = 0;i<archiveLength;i++)
                             {
-                            archive.read((char*)&buffer[i],1); 
-                        cout<<buffer[i];
+                                archive.read((char*)&buffer[i],1); 
+                             //   cout<<buffer[i];
                             }
-                       write(client,&buffer,archiveLength);      
+                        
+                            cout<<"Odczytalem buffor " <<endl;
+                            
+                        //wyslanie rozpakowanego zipa do clienta
+                      
+                         unsigned int numberOfSendingChars =0;
+                        char tmpBufforForData;
+                        
+                        do{   
+                            tmpBufforForData=buffer[numberOfSendingChars];
+                            int readed = write(client, &tmpBufforForData, 1);
+                            numberOfSendingChars+=readed;
+                       
+                            }while(numberOfSendingChars!= archiveLength);
+                      
+                     string rmCommand = "rm -f "+ archiveNameOpen;
+                     system(rmCommand.c_str());
+                          
                         
                         break;
                     }
