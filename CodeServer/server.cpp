@@ -26,7 +26,8 @@ int getdir (string dir, vector<string> &files)
         return errno;
     }
 
-    while ((dirp = readdir(dp)) != NULL) {
+    while ((dirp = readdir(dp)) != NULL ) {
+        
         files.push_back(string(dirp->d_name));
     }
     closedir(dp);
@@ -162,8 +163,8 @@ int main(){
                     case 'd':{//dekompresja
                             //zalozylem se klient bedzie przesylal nazwa_archiwum.zlib ktory chce zeby mu zdekompresowac (105 znakow )
                              cout<<" Id :  " << client<< " Dekompresja... "<<endl;
-                        char nameArchive[100];//
-                        for (int i = 0; i < 100; i++)
+                        char nameArchive[13];//
+                        for (int i = 0; i < 13; i++)
                         {
                         	char buf[1];
                         	read(client, &buf, 1);
@@ -173,11 +174,11 @@ int main(){
                         }
                     
                         string testArchiveName= string(nameArchive);
-                        string archiveName = testArchiveName.substr(0,100);
+                        string archiveName = testArchiveName.substr(0,13);
                         cout<<endl<<" Nazwa archiwum : "<<endl <<archiveName<<endl;
                       
                         //sprawdzenie czy odczytana nazwa archiwum jest w katalogu
-                          string dir = string(".");
+                          string dir = string("./archives");
 						    vector<string> files = vector<string>();
 
 						    getdir(dir,files);
@@ -220,20 +221,21 @@ int main(){
                         
                         break;
                     }
-                    case 'w':{//wyświetl listę arch
+                    case 'w':{//wyświetl listę dostepnych archiwow na serwerze
                         string dir = string("./archives");
 						    vector<string> files = vector<string>();
 
 						    getdir(dir,files);
                                                    int sizeNameFiles=0;
 						    for (unsigned int i = 0;i < files.size();i++) {
-						      //  cout << files[i] << endl;
-                                                        string fileName=files[i];
-                                                        sizeNameFiles+=fileName.size()+1;
+                                                           string fileName=files[i]; 
+                                                        if (fileName!="." && fileName!=".."){
+                                                        
+                                                        sizeNameFiles+=fileName.size()+1; }
                                                         
 						    }
 						    
-						   // cout<<"rozmiar tablicy"<<sizeNameFiles<<endl;
+						
                                                 
 						    char tableToSend [sizeNameFiles];
                                                     int iterator =0;
@@ -241,23 +243,33 @@ int main(){
                                                         
                                                         string fileName=files[i];
                                                         
+                                                           if (fileName!="." && fileName!="..") {
                                                         for (unsigned int j=0; j<fileName.size();j++){
                                                             
                                                             tableToSend[iterator]=fileName[j];
                                                             iterator++;
                                                         }
-                                                        
                                                         tableToSend[iterator]='\n';
                                                         iterator++;
+                                                           }
+                                                        
                                                         
                                                         
                                                     }
                                                     
-                                                    cout<<"Lista plikow do wyslania " <<endl<<tableToSend<<endl;
+                                                    cout<<"Lista dostepnych archiwow do wyslania " <<endl<<tableToSend<<endl;
                                                     
-                                                    write(client,&tableToSend,sizeof(char)*sizeNameFiles);
-						    
-						    
+                                                 
+                                                    int numberOfSendingChars =0;
+                                                    
+                                                     
+                                                                char tmpBufforForData;
+                                                                do{                                 // wczytywanie pliku ze strumienia
+                                                            tmpBufforForData=tableToSend[numberOfSendingChars];
+                                                            int readed = write(client, &tmpBufforForData, 1);
+                                                            numberOfSendingChars+=readed;
+                       
+                                                        }while(numberOfSendingChars!= sizeNameFiles);
 
                         break;
                     }
@@ -266,14 +278,13 @@ int main(){
                 }
     
             }
-            printf("Client adress ( connect ): %s\n", inet_ntoa((struct in_addr) newClient.sin_addr));
+            printf("Client adress closed : %s\n", inet_ntoa((struct in_addr) newClient.sin_addr));
+            cout<<endl;
             exit(0);
         }
         close(client);
         
     }
-
-
 
 
 	return 0;
