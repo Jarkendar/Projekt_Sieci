@@ -48,6 +48,7 @@ public class FileServerLister extends Connector{
 
             list =  decodeStream(dataArray);
 
+            notifyAll();
         } catch (IOException e) {
             e.printStackTrace();
         }

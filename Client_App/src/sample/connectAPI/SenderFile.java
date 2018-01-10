@@ -34,8 +34,6 @@ public class SenderFile extends Connector {
                 System.out.println("I cant get bytes from files");
                 return;
             }
-            System.out.println(new String(bytesFile));
-
 
             byte[] header = prepareHeader(bytesFile.length + HEADER_SIZE);
 
