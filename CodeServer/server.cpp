@@ -1,6 +1,4 @@
-#include <iostream>
-#include <zlib.h>
-#include <zconf.h> 
+#include <iostream> 
 #include <fstream>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -15,7 +13,9 @@
 #include <signal.h>
 #include <dirent.h>
 #include <errno.h>
-#include<vector>
+#include <vector>
+#include <zip.h>
+
 using namespace std;
 int getdir (string dir, vector<string> &files)
 {
@@ -26,12 +26,14 @@ int getdir (string dir, vector<string> &files)
         return errno;
     }
 
-    while ((dirp = readdir(dp)) != NULL) {
+    while ((dirp = readdir(dp)) != NULL ) {
+        
         files.push_back(string(dirp->d_name));
     }
     closedir(dp);
     return 0;
 }
+
 //todo adres ip serwera
 int main(){    
     int socketDescriptor = socket(PF_INET, SOCK_STREAM, 0);
@@ -48,7 +50,7 @@ int main(){
     
     listen(socketDescriptor, 0);
     
-    //signal(SIGCHLD, SIG_IGN);
+    
     
     while(1){
         struct sockaddr_in newClient;
@@ -66,16 +68,17 @@ int main(){
                 char typeMessage = messageBufforHeader[0];
                 switch(typeMessage){
                     case 'c':{//kompresja
-//WCZYTANIE DANYCH OD KLIENTA                    	
-                        cout<<client<< " Compression: ";
-                        //char bufferToFile[1000];
                         
-                        char header[100];// = new char(100);
+                        //WCZYTANIE DANYCH OD KLIENTA                    	
+                        cout<<client<< " Compression: ";
+                    
+                        
+                        char header[100];
                         for (int i = 0; i < 100; i++)
                         {
                         	char buf[1];
                         	read(client, &buf, 1);
-                        	//bufferToFile[i] = buf[0];
+                    
                         	header[i] = buf[0];
                         }
                         int fileSize = 0;
@@ -83,9 +86,7 @@ int main(){
                         for (int i = 86; i <100; i++)//wczytanie rozmiaru pliku wejściowego
                         {
                         	int number = header[i] - 48;
-                               // cout<<"header[i] " << header[i]<<endl;
-                               // cout<<"rozmiar " << number<<endl;
-                                
+                               
                         	if (number != 0)
                         	{
                         		start = 1;
@@ -95,18 +96,16 @@ int main(){
                         		fileSize = fileSize*10 + number;	
                         	}
                         }
-                        cout<<"file size : "<<fileSize<<endl;
                         
-                        cout<<"Doczytuje dane " <<endl;
+                        cout<<"Rozmiar przeslanych danych od klienta  : "<<fileSize<<endl;
+                        
                         char * bufferToFile = new char[fileSize];
-                        
-                        //char bufferToFile[fileSize];
                         
                         for (int i=0 ; i<100 ; i++) {
                             bufferToFile[i]=header[i];
                             
                         }
-                        //delete(header);
+                        
                       int actualByte = 100;
                         char tmpBufforForData[maxRead];
                         do{                                 // wczytywanie pliku ze strumienia
@@ -116,48 +115,60 @@ int main(){
                            {
                            		bufferToFile[actualByte] = tmpBufforForData[i];
                            		actualByte++;
-                                     //   cout<<"actualByte" << actualByte<<endl;
+                                     
+                                 
                            }
                         }while(actualByte != fileSize);
-                        cout<<"Wczytałem cały strumień wejściowy."<<endl;
-//KOMPRESJA
-                        cout<<"Rozpoczynam kompresję"<<endl;
-                     
                         
-                        char* compressFileBuffer = new char[(int)(fileSize*1.1 + 12)];
-                         // char compressFileBuffer[ int( fileSize*1.1 + 12) ];           
-    					unsigned long lenghtAfterCompress; 
-                                       
-                                        
-					    //kompresujemy z najlepsza metoda
-					    cout<<"Status kompresji :"<<compress2((Bytef *)compressFileBuffer,&lenghtAfterCompress,
-					    (const  Bytef*)bufferToFile,fileSize,Z_DEFAULT_COMPRESSION);
-                                          cout<<"dlugosc po kompresji "<<lenghtAfterCompress<<endl;
-                                          
-					    string fileName = string(header,100)+".zlib";
-                                                
-    					//tworzenie pliku w ktorym zapiszemy zpakowane dane
-    					fstream fileToCompress;
-    					fileToCompress.open(fileName.c_str(),ios::binary|ios::out);
-					 
-					    for(unsigned int i = 0; i<lenghtAfterCompress;i++)
+                        cout<<endl<<"Wczytałem cały strumień wejściowy."<<endl;
+                        
+                        //KOMPRESJA             
+                        //tworzymy folder dla archiwow .zip przelacznik -p bo jakby juz byl folder
+                        system("mkdir -p archives");
+                        //folder do trzymania strumieni klientow do zipowania
+                        system("mkdir -p tmpFilesForZip");
+                        
+                        cout<<"Rozpoczynam kompresję"<<endl;
+                        
+                        string adressClient=inet_ntoa((struct in_addr) newClient.sin_addr);
+                        
+                        
+                        //   string fileName = "./"+adressClient+"/"+string(header,100);
+                        string fileName = "./tmpFilesForZip/"+adressClient;//+string(header,100);
+                        cout<<"Miejsce zapisania strumienia : "<<fileName<<endl;
+                        
+                        //zapis strumienia do pliku
+                        fstream fs;
+                        fs.open(fileName.c_str(), ios::binary|ios::out);
+                  	    for(int i = 0; i<fileSize;i++)
 					    {
-					        fileToCompress.write((char*)&compressFileBuffer[i],1); 
-                                           // cout<<compressFileBuffer[i]<<",";
+					        fs.write((char*)&bufferToFile[i],1); 
 					    }
- 						fileToCompress.close();
- 						cout<<client<<" : "<<"skończyłem kompresję"<<endl;
-                                                
-                        delete(compressFileBuffer);
-                        delete(bufferToFile);
+                        fs.close();
+                        
+                        //zip ./archives/first.zip ./tmpFilesForZip/127.0.0.1 -j  -FS -r
+                        //-FS na potrzeby loopbacka
+                        
+                        string zipCommand ="zip ./archives/" + adressClient + ".zip" + "  ./tmpFilesForZip/"+adressClient+" -j  -FS -r ";
+                        
+                        
+                        system (zipCommand.c_str());
+                        
+                        cout<<"Uworzylem zipa dla klienta o IP " << adressClient <<endl;
+                        
+                        string rmCommand = "rm " + fileName;
+                        system (rmCommand.c_str());
+                        
+                        //tutaj moznaby jeszcze usuwac folder tmpFilesForZip ?
+                    
                         break;
 //KONIEC KOMPRESJI
                     }
                     case 'd':{//dekompresja
-                            //zalozylem se klient bedzie przesylal nazwa_archiwum.zlib ktory chce zeby mu zdekompresowac (105 znakow )
-                             cout<<" Id :  " << client<< " Dekompresja... "<<endl;
-                        char nameArchive[105];//
-                        for (int i = 0; i < 105; i++)
+                            //zalozylem ze klient bedzie przesylal nazwa_archiwum.zip tylko to co ma na liscie i trzeba jakis znak konca przesylu nazwy dorzucic zeby wiedzial kiedy koniec narazie na sztywno 13
+                        cout<<" Id :  " << client<< " Dekompresja... "<<endl;
+                        char nameArchive[13];//
+                        for (int i = 0; i < 13; i++)
                         {
                         	char buf[1];
                         	read(client, &buf, 1);
@@ -167,11 +178,11 @@ int main(){
                         }
                     
                         string testArchiveName= string(nameArchive);
-                        string archiveName = testArchiveName.substr(0,105);
-                        cout<<endl<<" Nazwa archiwum : "<<endl <<archiveName<<endl;
+                        string archiveName = "./archives/"+testArchiveName.substr(0,13);
+                        cout<<endl<<"Nazwa archiwum : "<<endl <<archiveName<<endl;
                       
                         //sprawdzenie czy odczytana nazwa archiwum jest w katalogu
-                          string dir = string(".");
+                          string dir = string("./archives");
 						    vector<string> files = vector<string>();
 
 						    getdir(dir,files);
@@ -183,93 +194,71 @@ int main(){
                                                         }
 						    }
                         
-                    
-                        //otwieranie archiwum
-                      
+                        string unzipCommand= "unzip -u " + archiveName + " -d tmpFilesUnzipped";
+                        system(unzipCommand.c_str());
                         
                         fstream archive;
                         
-                        archive.open(archiveName,ios::binary|ios::in);
+                        // 9 pierwszych po IP 127.0.0.1 potem trzeba dodac dynamicznie po czytaniu znakow zmienna na gorze
+                        string archiveNameOpen="./tmpFilesUnzipped/"+testArchiveName.substr(0,9);
+                        
+                        cout<<"nazwa pliku open: " <<archiveNameOpen <<endl;
+                        
+                        //otwieranie pliku
+                       archive.open(archiveNameOpen.c_str(),ios::binary|ios::in);
                         if(!archive.is_open()) return 0;
-                        
+                            
                         //sprawdzenie dlugosci pliku
-                        
                         archive.seekg(0,ios::end);
                         unsigned int archiveLength = archive.tellg();
                         archive.seekg(0,ios::beg);
                         
-                        //tworzenie bufora do ktorego wczytamy plik
+                        cout<<"Dlugosc pliku : " <<archiveLength <<endl;
                         
-                        char *buffer = new char[archiveLength];
-                        //        char buffer [archiveLength];
-                         //odczytujemy archiwum bajt po bajcie
-                       
-                         cout << "\n"<<"Zawartosc odczytanego buffora z archiwum + dlugosc archiwum "<<archiveLength<<endl;
-                        
-                        for(unsigned int i = 0;i<archiveLength;i++)
+                        //tworzenie bufora do klienta
+                         char buffer[archiveLength];
+                         
+                            for(unsigned int i = 0;i<archiveLength;i++)
                             {
-                            archive.read((char*)&buffer[i],1); 
-                        cout<<buffer[i];
+                                archive.read((char*)&buffer[i],1); 
+                             //   cout<<buffer[i];
                             }
-                            
-                           
-                           //tworzenie bufora do ktorego zapiszemy dane rozpakowane przez biblioteke zlib
-                            //wielkosc bufora dla bezpieczenistwa powinna byc 
-                        //odpowiednio duza aby rozpakowane dany zmiescily sie
-                        //mozna bylo oczywiscie zapisac rozmiar danych przed spakowaniem do pliku 
-                    //maksymalnie dane mogą mieć wielkość 800000 bajtow
-                    //jezeli mamy wiekszy plik to odpowiedni musimy zwiekszyc ta wartosc
-                    
-                    char*destinationBuffer = new char[800000];//trzeba przerobić aby miał gdzieś zapisany rozmiar 
-                   // char destinationBuffer[800000];
-                    unsigned long lengthAfterDecompress; 
-                
-                //rozpakowyjemy
-                    
-               cout<< "\n"<< "status uncompress "<<uncompress((Bytef*)destinationBuffer,(uLong*)&lengthAfterDecompress,(Bytef*)buffer,archiveLength);
                         
-                       // char * tableToClient = new char [lengthAfterDecompress];
-                        char tableToClient[lengthAfterDecompress];
+                            cout<<"Odczytalem buffor " <<endl;
                             
-                        cout<<endl<<"Dlugosc bufora po dekompresji  "<<lengthAfterDecompress<<endl;
+                        //wyslanie rozpakowanego zipa do clienta
+                      
+                         unsigned int numberOfSendingChars =0;
+                        char tmpBufforForData;
                         
-                        for ( unsigned long j=0; j<lengthAfterDecompress ; j++ ) {
-                            
-                            tableToClient[j]=destinationBuffer[j];
-                            //cout<<tableToClient[j];
-                        }
-                            
-                            cout<<"Zawartosc tablicy wyslanej do clienta : " <<endl;
-                          for ( unsigned long j=0; j<lengthAfterDecompress ; j++ ) {
-                            
-                            //tableToClient[j]=destinationBuffer[j];
-                            cout<<tableToClient[j];
-                        }
+                        do{   
+                            tmpBufforForData=buffer[numberOfSendingChars];
+                            int readed = write(client, &tmpBufforForData, 1);
+                            numberOfSendingChars+=readed;
+                       
+                            }while(numberOfSendingChars!= archiveLength);
+                      
+                     string rmCommand = "rm -f "+ archiveNameOpen;
+                     system(rmCommand.c_str());
+                          
                         
-                        
-                        write(client,&tableToClient,sizeof(char)*lengthAfterDecompress);
-                        
-                        cout<<endl<<"Wyslalem do klienta"<<endl;
-                        archive.close();
-                        //delete(tableToClient);
-                        delete(buffer);
-                      //  delete(destinationBuffer);
                         break;
                     }
-                    case 'w':{//wyświetl listę arch
-                        string dir = string(".");
+                    case 'w':{//wyświetl listę dostepnych archiwow na serwerze
+                        string dir = string("./archives");
 						    vector<string> files = vector<string>();
 
 						    getdir(dir,files);
                                                    int sizeNameFiles=0;
 						    for (unsigned int i = 0;i < files.size();i++) {
-						      //  cout << files[i] << endl;
-                                                        string fileName=files[i];
-                                                        sizeNameFiles+=fileName.size()+1;
+                                                           string fileName=files[i]; 
+                                                        if (fileName!="." && fileName!=".."){
+                                                        
+                                                        sizeNameFiles+=fileName.size()+1; }
                                                         
 						    }
 						    
-						   // cout<<"rozmiar tablicy"<<sizeNameFiles<<endl;
+						
                                                 
 						    char tableToSend [sizeNameFiles];
                                                     int iterator =0;
@@ -277,60 +266,48 @@ int main(){
                                                         
                                                         string fileName=files[i];
                                                         
+                                                           if (fileName!="." && fileName!="..") {
                                                         for (unsigned int j=0; j<fileName.size();j++){
                                                             
                                                             tableToSend[iterator]=fileName[j];
                                                             iterator++;
                                                         }
-                                                        
                                                         tableToSend[iterator]='\n';
                                                         iterator++;
+                                                           }
+                                                        
                                                         
                                                         
                                                     }
                                                     
-                                                    cout<<"Lista plikow do wyslania " <<endl<<tableToSend<<endl;
+                                                    cout<<"Lista dostepnych archiwow do wyslania " <<endl<<tableToSend<<endl;
                                                     
-                                                    write(client,&tableToSend,sizeof(char)*sizeNameFiles);
-						    
-						    
+                                                 
+                                                    int numberOfSendingChars =0;
+                                                    
+                                                     
+                                                                char tmpBufforForData;
+                                                                do{                                 // wczytywanie pliku ze strumienia
+                                                            tmpBufforForData=tableToSend[numberOfSendingChars];
+                                                            int readed = write(client, &tmpBufforForData, 1);
+                                                            numberOfSendingChars+=readed;
+                       
+                                                        }while(numberOfSendingChars!= sizeNameFiles);
 
                         break;
                     }
 
 
                 }
-                
-                // do{//czytanie wiadomości
-                //     read(client, &bufforToRead, maxRead);
-                //     printf("%c", bufforToRead[0]);
-                //     message[j] = bufforToRead[0];
-                //     j += i;
-                // }while ( bufforToRead[0] != '\n');
-                // printf("%s\n", message);
-                // if(strcmp(message,"127228\n") == 0){
-                    
-                //     write(client, buff, sizeof(buff));
-                // }else if(strcmp(message,"127265\n")== 0){
-                //     char buff[24];
-                //     sprintf(buff, "JAROSLAW SKRZYPCZAK %d\n", i);
-                //     printf("%s\n", buff);
-                //     write(client, buff, sizeof(buff));
-                // }else{
-                // char buff[20];
-                // sprintf(buff, "I DONT KNOW YOU %d\n", i);
-                // printf("%s\n", buff);
-                // write(client, buff, sizeof(buff));
-                // }
+    
             }
-            printf("Client adress ( connect ): %s\n", inet_ntoa((struct in_addr) newClient.sin_addr));
+            printf("Client adress closed : %s\n", inet_ntoa((struct in_addr) newClient.sin_addr));
+            cout<<endl;
             exit(0);
         }
         close(client);
         
     }
-
-
 
 
 	return 0;
