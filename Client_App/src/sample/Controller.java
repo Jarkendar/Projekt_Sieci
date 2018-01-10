@@ -27,6 +27,7 @@ public class Controller {
         System.out.println(actionEvent);
         file = Main.openFileChooser();
         if (file != null) {
+            buttonChooseDirectory.setDisable(true);
             buttonChooseFile.setText(file.getAbsolutePath());
         }
     }
@@ -40,6 +41,9 @@ public class Controller {
         }
         file = null;
         buttonChooseFile.setText("Choose File");
+        buttonChooseDirectory.setText("Choose Directory");
+        buttonChooseFile.setDisable(false);
+        buttonChooseDirectory.setDisable(false);
     }
 
     public void clickList(ActionEvent actionEvent) {
@@ -76,7 +80,8 @@ public class Controller {
         System.out.println(actionEvent);
         file = Main.openDirectoryChooser();
         if (file != null){
-
+            buttonChooseFile.setDisable(true);
+            buttonChooseDirectory.setText(file.getAbsolutePath());
             System.out.println("order directory");
         }
     }

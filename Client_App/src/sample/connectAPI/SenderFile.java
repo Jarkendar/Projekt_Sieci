@@ -1,7 +1,6 @@
 package sample.connectAPI;
 
 import java.io.DataOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.Socket;
@@ -9,11 +8,13 @@ import java.nio.file.Files;
 
 public class SenderFile extends Connector {
 
-    private File file;
+    private String fileName;
+    private byte[] fileData;
 
-    SenderFile(File file, String ipAddress, int portNumber) {
+    SenderFile(String fileName, byte[] fileData, String ipAddress, int portNumber) {
         super(ipAddress, portNumber);
-        this.file = file;
+        this.fileName = fileName;
+        this.fileData = fileData;
     }
 
     @Override
@@ -28,14 +29,13 @@ public class SenderFile extends Connector {
             }
 
             DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
-            byte[] bytesFile = prepareArrayBytesFromFile();
 
-            if (bytesFile == null) {
+            if (fileData == null) {
                 System.out.println("I cant get bytes from files");
                 return;
             }
 
-            byte[] header = prepareHeader(bytesFile.length + HEADER_SIZE);
+            byte[] header = prepareHeader(fileData.length + HEADER_SIZE);
 
             //SEND sign, header and file to server
             dataOutputStream.write('c');
@@ -44,7 +44,7 @@ public class SenderFile extends Connector {
             dataOutputStream.write(header);
             dataOutputStream.flush();
             System.out.println("send header");
-            dataOutputStream.write(bytesFile);
+            dataOutputStream.write(fileData);
             dataOutputStream.flush();
             System.out.println("send file");
             dataOutputStream.close();
@@ -58,16 +58,6 @@ public class SenderFile extends Connector {
         }
     }
 
-    private byte[] prepareArrayBytesFromFile() {
-        try {
-            return Files.readAllBytes(file.toPath());
-        } catch (IOException e) {
-            System.out.println("Prepare data Error");
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     private byte[] prepareHeader(int size) {
         byte[] header = new byte[100];
         for (int i = 0 ; i<header.length ; i++){
@@ -75,9 +65,8 @@ public class SenderFile extends Connector {
         }
         String string = new String(header);
         System.out.println("header before " + string);
-        String[] path = file.getAbsolutePath().split("/");
-        String name = path[path.length - 1];
-        byte[] nameBytes = name.getBytes();
+
+        byte[] nameBytes = fileName.getBytes();
         for (int i = 0 ; i<nameBytes.length; i++){
             header[i] = nameBytes[i];
         }
