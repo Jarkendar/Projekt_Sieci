@@ -114,7 +114,6 @@ public class ReceiverFile extends Connector {
         LinkedList<String> folderList = new LinkedList<>();
         for (String row : structure) {
             int nesting = row.split("\t").length-1;
-            System.out.println("nesting ="+nesting);
             if (nesting < actualNesting) {
                 folderList.removeLast();
                 actualNesting--;
@@ -123,13 +122,33 @@ public class ReceiverFile extends Connector {
 
             if ("d_".equals(row.replace("\t","").substring(0, 2))) {//makeFolder
                 String folderName = row.replace("\t","").substring(2) + "test";
-                System.out.println(folderName);
-                System.out.println(pathPrefix+folderName);
                 new File(pathPrefix+folderName).mkdir();
                 folderList.addLast(folderName);
                 actualNesting++;
             } else {
                 System.out.println("It is file");
+                String[] preName = row.replace("\t","").split(" ");
+                String name = "";
+                for (int i = 0; i<preName.length-1; i++){
+                    name += preName[i];
+                }
+                int fileSize = Integer.parseInt(preName[preName.length-1]);
+                System.out.println("name = "+name);
+                System.out.println("size = "+fileSize);
+                System.out.println("actual shift = "+usedBytes);
+                byte[] fileDataArray = new byte[fileSize];
+                for (int i = 0; i<fileSize; i++){
+                    fileDataArray[i] = filesData[i+usedBytes];
+                }
+                usedBytes+=fileSize;
+                try {
+                    File file = new File(pathPrefix+"download" + name);
+                    Path path = Paths.get(file.getAbsolutePath());
+                    System.out.println(path);
+                    Files.write(path, fileDataArray);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
