@@ -13,7 +13,6 @@ public class ConnectManager {
 
     public void sendFileToCompress(File file) {
         if (file.isFile()) {
-            //TODO change header to 110 size to for file
             byte[] dataArray = prepareArrayBytesFromFile(file);
             prepareHeader(file.getName(), dataArray.length + Connector.HEADER_SIZE, 0);
             new Thread(new SenderFile(header, dataArray, IP_ADDRESS, PORT_NUMBER)).start();
@@ -53,11 +52,6 @@ public class ConnectManager {
             e.printStackTrace();
         }
         return null;
-    }
-
-    private String prepareName(File file) {
-        String[] path = file.getAbsolutePath().split("/");
-        return path[path.length - 1];
     }
 
     private byte[] prepareArrayBytesFromDirectory(File directory) {
