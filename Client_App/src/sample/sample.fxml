@@ -13,14 +13,14 @@
       <RowConstraints />
    </rowConstraints>
    <children>
-      <AnchorPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="800.0">
+      <AnchorPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="850.0">
          <children>
-            <Button fx:id="buttonSend" layoutX="610.0" layoutY="32.0" mnemonicParsing="false" onAction="#clickSend" prefHeight="26.0" prefWidth="151.0" text="Send to Server" />
-            <Button fx:id="buttonList" layoutX="610.0" layoutY="86.0" mnemonicParsing="false" onAction="#clickList" prefHeight="26.0" prefWidth="151.0" text="List File" />
-            <Button fx:id="buttonDownload" layoutX="610.0" layoutY="264.0" mnemonicParsing="false" onAction="#clickDownload" prefHeight="26.0" prefWidth="151.0" text="Download File" />
-            <Button fx:id="buttonChooseFile" layoutX="39.0" layoutY="32.0" mnemonicParsing="false" onAction="#clickChooseFile" prefHeight="26.0" prefWidth="260.0" text="Choose File" />
-            <Button fx:id="buttonChooseDirectory" layoutX="307.0" layoutY="32.0" mnemonicParsing="false" onAction="#clickChooseDirectory" prefHeight="26.0" prefWidth="260.0" text="Choose Directory"/>
-            <ListView fx:id="listFiles" layoutX="39.0" layoutY="86.0" prefHeight="382.0" prefWidth="528.0" />
+            <Button fx:id="buttonSend" layoutX="660.0" layoutY="32.0" mnemonicParsing="false" onAction="#clickSend" prefHeight="26.0" prefWidth="151.0" text="Send to Server" />
+            <Button fx:id="buttonList" layoutX="660.0" layoutY="86.0" mnemonicParsing="false" onAction="#clickList" prefHeight="26.0" prefWidth="151.0" text="List File" />
+            <Button fx:id="buttonDownload" layoutX="660.0" layoutY="264.0" mnemonicParsing="false" onAction="#clickDownload" prefHeight="26.0" prefWidth="151.0" text="Download File" />
+            <Button fx:id="buttonChooseFile" layoutX="39.0" layoutY="32.0" mnemonicParsing="false" onAction="#clickChooseFile" prefHeight="26.0" prefWidth="285.0" text="Choose File" />
+            <Button fx:id="buttonChooseDirectory" layoutX="332.0" layoutY="32.0" mnemonicParsing="false" onAction="#clickChooseDirectory" prefHeight="26.0" prefWidth="285.0" text="Choose Directory"/>
+            <ListView fx:id="listFiles" layoutX="39.0" layoutY="86.0" prefHeight="382.0" prefWidth="578.0" />
          </children>
       </AnchorPane>
    </children>

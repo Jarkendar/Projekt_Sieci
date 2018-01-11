@@ -52,14 +52,20 @@ public class Controller {
 
         listForListView = connectManager.getListFileToDownload();
 
-        prepareDataToListView(listForListView);
+        String[] listToDisplay = new String[listForListView.length];
+        for (int i = 0; i<listForListView.length; i++){
+            String[] words = listForListView[i].split("_");
+            listToDisplay[i] = words[0]+".zip   NEED MEMORY= "+makeBytesSizeString(words[words.length-2]);
+        }
+
+        prepareDataToListView(listToDisplay);
     }
 
     public void clickDownload(ActionEvent actionEvent) {
         actionEvent.getSource();
         System.out.println(actionEvent);
         if (listFiles.getSelectionModel().getSelectedItem() != null){
-            String lines = listFiles.getSelectionModel().getSelectedItem();
+            String lines = listForListView[listFiles.getSelectionModel().getSelectedIndex()];
             connectManager.requestFileToDecompress(lines);
         }else {
             System.out.println("Not choose file from list.");
@@ -85,4 +91,27 @@ public class Controller {
             System.out.println("order directory");
         }
     }
+
+    private String makeBytesSizeString(String sizeWord){
+        String[] prefixMultiplicator = {"KB","MB","GB"};
+        int size = Integer.parseInt(sizeWord);
+        if (size < 1000){
+            return size+"";
+        }else if (size < 1000000){
+            int integ = (int) (size/1000);
+            int rest = size%1000;
+            return integ+","+rest+" "+prefixMultiplicator[0];
+        }else if (size < 1000000000){
+            int integ = (int) (size/1000000);
+            int rest = size%1000000;
+            rest = (int)(rest/1000);
+            return integ+","+rest+" "+prefixMultiplicator[1];
+        }else {
+            int integ = (int) (size/1000000000);
+            int rest = size%1000000000;
+            rest = (int)(rest/1000);
+            return integ+","+rest+" "+prefixMultiplicator[2];
+        }
+    }
+
 }
