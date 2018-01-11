@@ -4,16 +4,15 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.Socket;
-import java.nio.file.Files;
 
 public class SenderFile extends Connector {
 
-    private String fileName;
+    private byte[] header;
     private byte[] fileData;
 
-    SenderFile(String fileName, byte[] fileData, String ipAddress, int portNumber) {
+    SenderFile(byte[] header, byte[] fileData, String ipAddress, int portNumber) {
         super(ipAddress, portNumber);
-        this.fileName = fileName;
+        this.header = header;
         this.fileData = fileData;
     }
 
@@ -34,9 +33,6 @@ public class SenderFile extends Connector {
                 System.out.println("I cant get bytes from files");
                 return;
             }
-
-            byte[] header = prepareHeader(fileData.length + HEADER_SIZE);
-
             //SEND sign, header and file to server
             dataOutputStream.write('c');
             dataOutputStream.flush();
@@ -56,29 +52,5 @@ public class SenderFile extends Connector {
             System.out.println("Error in SenderFile");
             e.printStackTrace();
         }
-    }
-
-    private byte[] prepareHeader(int size) {
-        byte[] header = new byte[100];
-        for (int i = 0 ; i<header.length ; i++){
-            header[i] = (byte)'_';
-        }
-        String string = new String(header);
-        System.out.println("header before " + string);
-
-        byte[] nameBytes = fileName.replace("_","-").replace(" ","-").getBytes();
-        for (int i = 0 ; i<nameBytes.length; i++){
-            header[i] = nameBytes[i];
-        }
-        for (int i = 86; i < 100; i++) {
-            int number = (int) (size / Math.pow(10, 100 - i - 1));
-            if (number >= 10) {
-                number %= 10;
-            }
-            header[i] = (byte) (number + 48);
-        }
-        string = new String(header);
-        System.out.println("header after " + string);
-        return header;
     }
 }

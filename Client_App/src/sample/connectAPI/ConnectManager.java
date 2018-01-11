@@ -1,6 +1,5 @@
 package sample.connectAPI;
 
-import javax.sound.midi.Soundbank;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -15,11 +14,12 @@ public class ConnectManager {
     public void sendFileToCompress(File file) {
         if (file.isFile()) {
             //TODO change header to 110 size to for file
-            
-            new Thread(new SenderFile(prepareName(file), prepareArrayBytesFromFile(file), IP_ADDRESS, PORT_NUMBER)).start();
+            byte[] dataArray = prepareArrayBytesFromFile(file);
+            prepareHeader(file.getName(), dataArray.length + Connector.HEADER_SIZE, 0);
+            new Thread(new SenderFile(header, dataArray, IP_ADDRESS, PORT_NUMBER)).start();
         } else {
-            prepareArrayBytesFromDirectory(file);
-            System.out.println("Header : = "+ new String(header));
+            byte[] dataArray = prepareArrayBytesFromDirectory(file);
+            new Thread(new SenderFile(header, dataArray, IP_ADDRESS, PORT_NUMBER)).start();
         }
 
     }

@@ -33,10 +33,10 @@ public class ReceiverFile extends Connector {
             byte[] buffer = new byte[8192];
             InputStream inputStream = socket.getInputStream();
 
-            byte[] headerDownload = new byte[100];
+            byte[] headerDownload = new byte[HEADER_SIZE];
             inputStream.read(headerDownload, 0, HEADER_SIZE);
             String[] head = new String(headerDownload).split("_");
-            int size = Integer.parseInt(head[head.length-1]) -100;
+            int size = Integer.parseInt(head[head.length-2]) - HEADER_SIZE;
 
             while (true) {
                 int readBytes = inputStream.read(buffer);
