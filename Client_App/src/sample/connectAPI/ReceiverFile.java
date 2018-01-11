@@ -35,15 +35,22 @@ public class ReceiverFile extends Connector {
 
             byte[] headerDownload = new byte[100];
             inputStream.read(headerDownload, 0, HEADER_SIZE);
+            String[] head = new String(headerDownload).split("_");
+            int size = Integer.parseInt(head[head.length-1]) -100;
 
             while (true) {
-                int readBytes = inputStream.read(buffer,0,1);
+                int readBytes = inputStream.read(buffer);
                 if (readBytes < 0) {
                     break;
                 }
-                byteArrayOutputStream.write(buffer, 0, readBytes);
+                byteArrayOutputStream.write(buffer);
             }
-            byte[] dataArray = byteArrayOutputStream.toByteArray();
+            byte[] downloadData = byteArrayOutputStream.toByteArray();
+            byte[] dataArray = new byte[size];
+
+            for (int i = 0; i<size; i++){
+                dataArray[i] = downloadData[i];
+            }
 
             System.out.println(new String(headerDownload));
 
@@ -60,7 +67,7 @@ public class ReceiverFile extends Connector {
     }
 
     private String pullNameFromHeader(String header) {
-        String[] word = header.split(" ");
+        String[] word = header.split("_");
         return word[0];
     }
 }

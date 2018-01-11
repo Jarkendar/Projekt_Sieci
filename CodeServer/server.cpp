@@ -130,7 +130,7 @@ int main(){
                         
                         cout<<"Rozpoczynam kompresję"<<endl;
                         
-                        string adressClient=inet_ntoa((struct in_addr) newClient.sin_addr);
+                        string adressClient= string(header); //inet_ntoa((struct in_addr) newClient.sin_addr);
                         
                         
                         //   string fileName = "./"+adressClient+"/"+string(header,100);
@@ -167,8 +167,8 @@ int main(){
                     case 'd':{//dekompresja
                             //zalozylem ze klient bedzie przesylal nazwa_archiwum.zip tylko to co ma na liscie i trzeba jakis znak konca przesylu nazwy dorzucic zeby wiedzial kiedy koniec narazie na sztywno 13
                         cout<<" Id :  " << client<< " Dekompresja... "<<endl;
-                        char nameArchive[13];//
-                        for (int i = 0; i < 13; i++)
+                        char nameArchive[104];//
+                        for (int i = 0; i < 104; i++)
                         {
                         	char buf[1];
                         	read(client, &buf, 1);
@@ -178,7 +178,7 @@ int main(){
                         }
                     
                         string testArchiveName= string(nameArchive);
-                        string archiveName = "./archives/"+testArchiveName.substr(0,13);
+                        string archiveName = "./archives/"+testArchiveName.substr(0,104);
                         cout<<endl<<"Nazwa archiwum : "<<endl <<archiveName<<endl;
                       
                         //sprawdzenie czy odczytana nazwa archiwum jest w katalogu
@@ -200,7 +200,7 @@ int main(){
                         fstream archive;
                         
                         // 9 pierwszych po IP 127.0.0.1 potem trzeba dodac dynamicznie po czytaniu znakow zmienna na gorze
-                        string archiveNameOpen="./tmpFilesUnzipped/"+testArchiveName.substr(0,9);
+                        string archiveNameOpen="./tmpFilesUnzipped/"+testArchiveName.substr(0,100);
                         
                         cout<<"nazwa pliku open: " <<archiveNameOpen <<endl;
                         
@@ -228,15 +228,17 @@ int main(){
                             
                         //wyslanie rozpakowanego zipa do clienta
                       
-                         unsigned int numberOfSendingChars =0;
-                        char tmpBufforForData;
-                        
-                        do{   
-                            tmpBufforForData=buffer[numberOfSendingChars];
-                            int readed = write(client, &tmpBufforForData, 1);
-                            numberOfSendingChars+=readed;
-                       
-                            }while(numberOfSendingChars!= archiveLength);
+                            write(client, &buffer, archiveLength);
+                            
+                      //   unsigned int numberOfSendingChars =0;
+                      //  char tmpBufforForData;
+                     //   
+                     //   do{   
+                     //       tmpBufforForData=buffer[numberOfSendingChars];
+                      //      int readed = write(client, &tmpBufforForData, 1);
+                     //       numberOfSendingChars+=readed;
+                      // 
+                     //       }while(numberOfSendingChars!= archiveLength);
                       
                      string rmCommand = "rm -f "+ archiveNameOpen;
                      system(rmCommand.c_str());

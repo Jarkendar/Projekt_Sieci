@@ -13,6 +13,7 @@ public class ConnectManager {
         if (file.isFile()) {
             new Thread(new SenderFile(prepareName(file), prepareArrayBytesFromFile(file), IP_ADDRESS, PORT_NUMBER)).start();
         } else {
+            System.out.println(file.getName());
             prepareArrayBytesFromDirectory(file);
         }
 
@@ -38,9 +39,6 @@ public class ConnectManager {
         new Thread(new ReceiverFile(name, IP_ADDRESS, PORT_NUMBER)).start();
     }
 
-    public void sendDirecotryForCompress(File directory) {
-        System.out.println("send directory");
-    }
 
     private byte[] prepareArrayBytesFromFile(File file) {
         try {
@@ -59,11 +57,12 @@ public class ConnectManager {
 
     private byte[] prepareArrayBytesFromDirectory(File directory) {
         LinkedList<File> filesToPrepare = new LinkedList<>();
-        //TODO build structure file and save to files LinkedList<String> structure =
+        LinkedList<String> structure = new LinkedList<>();
         if (directory.isDirectory()) {
+            structure.addLast("d_"+directory.getName());
             File[] filesInFolder = directory.listFiles();
             for (File file : filesInFolder) {
-                pullFilesFromDirectory(filesToPrepare, file);
+                pullFilesFromDirectory(filesToPrepare, file, structure, "\t");
             }
         } else {
             System.out.println("It is not directory");
@@ -74,16 +73,21 @@ public class ConnectManager {
             System.out.println(file);
         }
 
+        String txt = new String().join("\n",structure);
+        System.out.println("My structure :\n" + txt+"\n size :"+txt.getBytes().length);
+
         return "".getBytes();
     }
 
-    private void pullFilesFromDirectory(LinkedList<File> files, File file) {
+    private void pullFilesFromDirectory(LinkedList<File> files, File file, LinkedList<String> structure, String prefix) {
         if (file.isFile()) {
+            structure.addLast(prefix+file.getName());
             files.addLast(file);
         } else {
+            structure.addLast(prefix+"d_"+file.getName());
             File[] filesInDirectory = file.listFiles();
             for (File childFile : filesInDirectory) {
-                pullFilesFromDirectory(files, childFile);
+                pullFilesFromDirectory(files, childFile,structure, prefix+"\t");
             }
         }
     }

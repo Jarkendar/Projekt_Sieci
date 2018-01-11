@@ -61,12 +61,12 @@ public class SenderFile extends Connector {
     private byte[] prepareHeader(int size) {
         byte[] header = new byte[100];
         for (int i = 0 ; i<header.length ; i++){
-            header[i] = (byte)' ';
+            header[i] = (byte)'_';
         }
         String string = new String(header);
         System.out.println("header before " + string);
 
-        byte[] nameBytes = fileName.getBytes();
+        byte[] nameBytes = fileName.replace("_","-").replace(" ","-").getBytes();
         for (int i = 0 ; i<nameBytes.length; i++){
             header[i] = nameBytes[i];
         }
