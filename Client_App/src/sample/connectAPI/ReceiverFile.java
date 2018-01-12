@@ -6,7 +6,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedList;
-import java.util.Stack;
 
 public class ReceiverFile extends Connector {
 
@@ -36,16 +35,24 @@ public class ReceiverFile extends Connector {
             InputStream inputStream = socket.getInputStream();
 
             byte[] headerDownload = new byte[HEADER_SIZE];
-            inputStream.read(headerDownload, 0, HEADER_SIZE);
+            byte[] buf = new byte[1];
+            int readed = 0;
+            do {
+                inputStream.read(buf, 0, 1);
+                headerDownload[readed] = buf[0];
+                readed++;
+            }while (readed != HEADER_SIZE);
+
+            System.out.println("readed "+new String(headerDownload));
 
             int size = pullDownloadSize(new String(headerDownload));
 
             while (true) {
-                int readBytes = inputStream.read(buffer);
+                int readBytes = inputStream.read(buf);
                 if (readBytes < 0) {
                     break;
                 }
-                byteArrayOutputStream.write(buffer);
+                byteArrayOutputStream.write(buf);
             }
             byte[] downloadData = byteArrayOutputStream.toByteArray();
             byte[] dataArray = new byte[size];
@@ -133,9 +140,9 @@ public class ReceiverFile extends Connector {
                     name += preName[i];
                 }
                 int fileSize = Integer.parseInt(preName[preName.length-1]);
-                System.out.println("name = "+name);
-                System.out.println("size = "+fileSize);
-                System.out.println("actual shift = "+usedBytes);
+                System.out.println("name = " + name);
+                System.out.println("size = " + fileSize);
+                System.out.println("actual shift = " + usedBytes);
                 byte[] fileDataArray = new byte[fileSize];
                 for (int i = 0; i<fileSize; i++){
                     fileDataArray[i] = filesData[i+usedBytes];
