@@ -18,7 +18,6 @@ public class SenderFile extends Connector {
 
     @Override
     public void run() {
-//TODO size inner buffer protect
         try (Socket socket = new Socket(getIpAddress(), getPortNumber())) {
 
             if (socket.isConnected()) {
@@ -47,10 +46,8 @@ public class SenderFile extends Connector {
 
         } catch (ConnectException e) {
             System.out.println("Timeout SenderFile");
-            e.printStackTrace();
         } catch (IOException e) {
-            System.out.println("Error in SenderFile");
-            e.printStackTrace();
+            System.out.println("Error in SenderFile. Is not connect.");
         }
     }
 }

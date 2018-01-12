@@ -11,11 +11,11 @@ public abstract class Connector implements Runnable {
         this.portNumber = portNumber;
     }
 
-    public String getIpAddress() {
+    String getIpAddress() {
         return ipAddress;
     }
 
-    public int getPortNumber() {
+    int getPortNumber() {
         return portNumber;
     }
 }

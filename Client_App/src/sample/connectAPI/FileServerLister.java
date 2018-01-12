@@ -16,7 +16,6 @@ public class FileServerLister extends Connector {
 
     @Override
     public void run() {
-        //TODO size inner buffer protect
         try (Socket socket = new Socket(getIpAddress(), getPortNumber())) {
             if (socket.isConnected()) {
                 System.out.println("Socket is connect");
@@ -33,7 +32,6 @@ public class FileServerLister extends Connector {
 
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
-            byte[] buffer = new byte[8192];//TODO to change
             InputStream inputStream = socket.getInputStream();
 
             byte[] buf = new byte[1];

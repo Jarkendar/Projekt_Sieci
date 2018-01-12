@@ -20,20 +20,18 @@ public class ConnectManager {
             byte[] dataArray = prepareArrayBytesFromDirectory(file);
             new Thread(new SenderFile(header, dataArray, IP_ADDRESS, PORT_NUMBER)).start();
         }
-
     }
 
     public String[] getListFileToDownload() {
         FileServerLister fileServerLister = new FileServerLister(IP_ADDRESS, PORT_NUMBER);
         Thread thread = new Thread(fileServerLister);
         thread.start();
+        //wait for thread
         synchronized (thread) {
             try {
-                System.out.println("Wait for list.");
                 thread.wait();
             } catch (InterruptedException e) {
                 System.out.println("Error in wait thread.");
-                e.printStackTrace();
             }
         }
         return fileServerLister.getList();
@@ -49,7 +47,6 @@ public class ConnectManager {
             return Files.readAllBytes(file.toPath());
         } catch (IOException e) {
             System.out.println("Prepare data Error");
-            e.printStackTrace();
         }
         return null;
     }
@@ -67,13 +64,7 @@ public class ConnectManager {
             System.out.println("It is not directory");
         }
 
-        System.out.println("File in folder");
-        for (File file : filesToPrepare) {
-            System.out.println(file);
-        }
-
         String txt = String.join("\n", structure);
-        System.out.println("My structure :\n" + txt + "\n size :" + txt.getBytes().length);
 
         LinkedList<byte[]> bytesToSend = new LinkedList<>();
         bytesToSend.addLast(txt.getBytes());
@@ -84,25 +75,21 @@ public class ConnectManager {
                 bytesToSend.addLast(Files.readAllBytes(file.toPath()));
                 sizeFiles += bytesToSend.getLast().length;
             } catch (IOException e) {
-                e.printStackTrace();
+                System.out.println("ConnectManager");
             }
         }
 
         System.out.println("Size all files : " + sizeFiles + "B");
 
         long allSize = txt.getBytes().length + sizeFiles;
-        System.out.println("Size all to transfer :" + allSize);
         byte[] readyBytes = new byte[(int) allSize];
-        int iter = 0;
+        int iterator = 0;
         for (byte[] array : bytesToSend) {
-            System.out.println("Rozmiar :" + array.length);
-            for (byte b : array) {
-                readyBytes[iter] = b;
-                iter++;
+            for (byte actualByte : array) {
+                readyBytes[iterator] = actualByte;
+                iterator++;
             }
         }
-
-        System.out.println("Ready size = " + readyBytes.length);
 
         prepareHeader(directory.getName(), (int) allSize + Connector.HEADER_SIZE, txt.getBytes().length);
 
@@ -114,7 +101,7 @@ public class ConnectManager {
             try {
                 structure.addLast(prefix + file.getName() + " " + Files.readAllBytes(file.toPath()).length);
             } catch (IOException e) {
-                e.printStackTrace();
+                System.out.println("Error in get length file. ConnectorManager");
             }
             files.addLast(file);
         } else {
@@ -126,13 +113,10 @@ public class ConnectManager {
         }
     }
 
-
     private void prepareHeader(String fileName, int size, int structureSize) {
         for (int i = 0; i < header.length; i++) {
             header[i] = (byte) '_';
         }
-        String string = new String(header);
-        System.out.println("header before " + string);
 
         byte[] nameBytes = fileName.replace("_", "-").replace(" ", "-").getBytes();
         for (int i = 0; i < nameBytes.length; i++) {
@@ -153,10 +137,5 @@ public class ConnectManager {
             }
             header[i] = (byte) (number + 48);
         }
-
-        string = new String(header);
-        System.out.println("header after " + string);
     }
-
-
 }
