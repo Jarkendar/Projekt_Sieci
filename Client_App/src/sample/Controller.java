@@ -52,26 +52,32 @@ public class Controller {
 
         listForListView = connectManager.getListFileToDownload();
 
-        prepareDataToListView(listForListView);
+        String[] listToDisplay = new String[listForListView.length];
+        for (int i = 0; i < listForListView.length; i++) {
+            String[] words = listForListView[i].split("_");
+            listToDisplay[i] = words[0] + ".zip   NEED MEMORY= " + makeBytesSizeString(words[words.length - 2]);
+        }
+
+        prepareDataToListView(listToDisplay);
     }
 
     public void clickDownload(ActionEvent actionEvent) {
         actionEvent.getSource();
         System.out.println(actionEvent);
-        if (listFiles.getSelectionModel().getSelectedItem() != null){
-            String lines = listFiles.getSelectionModel().getSelectedItem();
+        if (listFiles.getSelectionModel().getSelectedItem() != null) {
+            String lines = listForListView[listFiles.getSelectionModel().getSelectedIndex()];
             connectManager.requestFileToDecompress(lines);
-        }else {
+        } else {
             System.out.println("Not choose file from list.");
         }
     }
 
-    public void prepareDataToListView(String lines[]){
+    private void prepareDataToListView(String lines[]) {
         ObservableList<String> listTest = FXCollections.observableArrayList(lines);
         setListText(listTest);
     }
 
-    private void setListText(ObservableList<String> list){
+    private void setListText(ObservableList<String> list) {
         listFiles.setItems(list);
     }
 
@@ -79,10 +85,33 @@ public class Controller {
         actionEvent.getSource();
         System.out.println(actionEvent);
         file = Main.openDirectoryChooser();
-        if (file != null){
+        if (file != null) {
             buttonChooseFile.setDisable(true);
             buttonChooseDirectory.setText(file.getAbsolutePath());
             System.out.println("order directory");
         }
     }
+
+    private String makeBytesSizeString(String sizeWord) {
+        String[] prefixMultiplicator = {"KB", "MB", "GB"};
+        int size = Integer.parseInt(sizeWord);
+        if (size < 1000) {
+            return size + "";
+        } else if (size < 1000000) {
+            int integ = (int) (size / 1000);
+            int rest = size % 1000;
+            return integ + "," + rest + " " + prefixMultiplicator[0];
+        } else if (size < 1000000000) {
+            int integ = (int) (size / 1000000);
+            int rest = size % 1000000;
+            rest = (int) (rest / 1000);
+            return integ + "," + rest + " " + prefixMultiplicator[1];
+        } else {
+            int integ = (int) (size / 1000000000);
+            int rest = size % 1000000000;
+            rest = (int) (rest / 1000);
+            return integ + "," + rest + " " + prefixMultiplicator[2];
+        }
+    }
+
 }
