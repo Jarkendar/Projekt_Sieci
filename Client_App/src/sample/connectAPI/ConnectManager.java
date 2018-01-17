@@ -6,7 +6,7 @@ import java.nio.file.Files;
 import java.util.LinkedList;
 
 public class ConnectManager {
-    private static final String IP_ADDRESS = "192.168.0.12";
+    private static final String IP_ADDRESS = "127.0.0.1";
     private static final int PORT_NUMBER = 12345;
 
     private byte[] header = new byte[Connector.HEADER_SIZE];
